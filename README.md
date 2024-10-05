@@ -142,5 +142,8 @@ The simulation environment was designed based on the **Al-Malaz district in Riya
 
 - **Average Waiting Time Across Epochs**: This plot shows how the average waiting time decreases over time as the agents learn better traffic control strategies.
 - **Cumulative Reward Across Epochs**: This plot shows the cumulative rewards collected by the agents during training. Higher rewards indicate better performance in controlling traffic.
+- - **Deployed YOLO Model**: URL For the Deployed YOLO Model:https://huggingface.co/spaces/MajedBa/YOLO
 
 Both of these results are saved as images in the `plots` directory after the simulation is run.
+
+
