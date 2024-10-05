@@ -147,3 +147,24 @@ The simulation environment was designed based on the **Al-Malaz district in Riya
 Both of these results are saved as images in the `plots` directory after the simulation is run.
 
 
+
+# Project Members
+
+List of team members who contributed to this project:
+
+- **Member 1**: [Majed Abdulrahman Balubaid]
+  *Email*: [majedbalubaid0@gmail.com]  
+  *GitHub*: [https://github.com/majedP]  
+  *LinkedIn*: [https://www.linkedin.com/in/majedbalubaid/]
+
+- **Member 2**: [Hassan Abid]
+  *Email*: [https://github.com/Hazabed]  
+  *GitHub*: [GitHub Profile URL]  
+  *LinkedIn*: [LinkedIn Profile URL]
+
+- **Member 3**: [Name], [Role]  
+  *Email*: [Email Address]  
+  *GitHub*: [GitHub Profile URL]  
+  *LinkedIn*: [LinkedIn Profile URL]
+
+*(Add more members as needed)*
