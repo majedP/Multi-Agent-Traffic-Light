@@ -152,19 +152,31 @@ Both of these results are saved as images in the `plots` directory after the sim
 
 List of team members who contributed to this project:
 
-- **Member 1**: [Majed Abdulrahman Balubaid]
-  *Email*: [majedbalubaid0@gmail.com]  
-  *GitHub*: [https://github.com/majedP]  
-  *LinkedIn*: [https://www.linkedin.com/in/majedbalubaid/]
+- Member 1: [Majed Abdulrahman Balubaid]
+  Email: [majedbalubaid0@gmail.com]  
+  GitHub: [https://github.com/majedP]  
+  LinkedIn: [https://www.linkedin.com/in/majedbalubaid/]
 
-- **Member 2**: [Hassan Abid]
-  *Email*: [https://github.com/Hazabed]  
-  *GitHub*: [GitHub Profile URL]  
-  *LinkedIn*: [LinkedIn Profile URL]
+- Member 2: [Hassan Abid]
+  Email: [hssanabid7@gmail.com]  
+  GitHub: [https://github.com/Hazabed]  
+  LinkedIn: [https://www.linkedin.com/in/Hassanabid7]
 
-- **Member 3**: [Name], [Role]  
-  *Email*: [Email Address]  
-  *GitHub*: [GitHub Profile URL]  
-  *LinkedIn*: [LinkedIn Profile URL]
+- Member 3: [Abdulaziz Alsidais], 
+  Email: [aalsidias@gmail.com]  
+  GitHub: [https://github.com/azooz1422]  
+  LinkedIn: [ https://www.linkedin.com/in/abdulaziz-alsidais-936464231?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app]
 
-*(Add more members as needed)*
+
+
+- Member 4: [Hamad Ibrahim Binnumay]
+  Email: [hamadnomi658@gmail.com]  
+  GitHub: [https://github.com/hamadibra19]  
+  LinkedIn: [https://www.linkedin.com/in/hamad-binnumay-9a9240311?lipi=urn%3Ali%3Apage%3Ad_flagship3_profile_view_base_contact_details%3BcZv0qy6xSZ%2B3ue21mN4szA%3D%3D]
+
+
+
+- Member 5: [Abdulrahman Ali Alothman]
+  Email: [Abdulrahman.Alothman105@gmail.com]  
+  GitHub: [https://github.com/Abdulrahman-Alothman105]  
+  LinkedIn: [https://www.linkedin.com/in/abdulrahman-alothman105]
