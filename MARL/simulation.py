@@ -356,7 +356,7 @@ class TrafficSimulation:
         all_junctions = traci.trafficlight.getIDList()
         self.initialize_agents(all_junctions)
         if not train:
-            self.load_model(os.path.join(self.base_path, "\models"))        
+            self.load_model(os.path.join(self.base_path, "Models"))        
         traci.close()
         for epoch in range(self.epochs):
             print(f"Epoch {epoch + 1} started.")
@@ -526,6 +526,6 @@ class TrafficSimulation:
 
 if __name__ == "__main__":
     config_path = r"conf/configuration.sumocfg"
-    base_path = r"./"
+    base_path = r"MARL"
     simulation = TrafficSimulation(config_path, base_path, epochs=1, steps=1000, window_size=32)
     simulation.run_simulation(train=False)
