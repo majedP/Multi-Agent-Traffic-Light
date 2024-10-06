@@ -60,15 +60,16 @@ The simulation environment was designed based on the **Al-Malaz district in Riya
 
 4. **Install SUMO**:
 
-   SUMO is required to simulate the traffic environment. Install it using the following commands:
+   SUMO is required to simulate the traffic environment. Install it using the following commands for linux:
 
    ```bash
    sudo add-apt-repository ppa:sumo/stable
    sudo apt-get update
    sudo apt-get install sumo sumo-tools sumo-doc
    ```
-
-5. **Install YOLOv11x (Ultralytics)**:
+   and folow these instructions for windows:
+      ```https://sumo.dlr.de/docs/Downloads.php#windows```
+6. **Install YOLOv11x (Ultralytics)**:
 
    ```bash
    pip install ultralytics
@@ -90,7 +91,7 @@ The simulation environment was designed based on the **Al-Malaz district in Riya
            epochs=100, 
            steps=1000, 
            window_size=32, 
-           train=True
+           train=False
        )
        simulation.run_simulation()
    ```
