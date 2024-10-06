@@ -7,12 +7,9 @@ from tensorflow.keras.layers import Input, Dense, LSTM
 from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.losses import MeanSquaredError
-import logging
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s:%(message)s')
 
-# TrafficModel class handles neural network construction and training
+    
 class TrafficModel:
     def __init__(self, input_dims, n_actions_1, n_actions_2, lr, window_size=4):
         self.input_dims = input_dims
@@ -21,13 +18,13 @@ class TrafficModel:
         self.lr = lr
         self.window_size = window_size
         self.model = self.create_model()
-
+    # Builds and compiles the neural network model
     def create_model(self):
         inputs = Input(shape=(self.window_size, self.input_dims))
-        x = LSTM(128, return_sequences=True)(inputs)  # Use default activation functions
-        x = LSTM(64)(x)
+        x = LSTM(64)(inputs)  # Use default activation functions
         x = Dense(32, activation='relu')(x)
 
+        # Output layers for lane selection and duration
         output_1 = Dense(self.n_actions_1, activation='linear', name='a_lane_output')(x)
         output_2 = Dense(self.n_actions_2, activation='linear', name='b_duration_output')(x)
 
@@ -36,12 +33,15 @@ class TrafficModel:
                       loss={'a_lane_output': MeanSquaredError(), 'b_duration_output': MeanSquaredError()})
         return model
 
+    # Predicts actions for a given state sequence
     def predict(self, state_sequence):
         return self.model.predict(state_sequence, verbose=0)
-
+    
+    # Trains the model using provided state and target data
     def fit(self, state_batch, q_targets, batch_size):
         self.model.fit(state_batch, q_targets, verbose=0, batch_size=batch_size)
 
+    # Updates the model's weights from another model
     def update_weights(self, model):
         self.model.set_weights(model.get_weights())
 
@@ -57,6 +57,7 @@ class ReplayMemory:
         self.reward_memory = np.zeros(max_size, dtype=np.float32)
         self.terminal_memory = np.zeros(max_size, dtype=bool)
 
+    # Stores a new transition in memory
     def store_transition(self, state_sequence, action1, action2, reward, new_state_sequence, done):
         index = self.memory_counter % self.max_size
         self.state_memory[index] = state_sequence
@@ -67,6 +68,7 @@ class ReplayMemory:
         self.terminal_memory[index] = done
         self.memory_counter += 1
 
+    # Samples a random batch of experiences from memory
     def sample_buffer(self, batch_size):
         max_mem = min(self.memory_counter, self.max_size)
         if max_mem < batch_size:
@@ -98,6 +100,7 @@ class BaseAgent:
         self.q_target = TrafficModel(input_dims, n_actions_1, n_actions_2, lr, window_size=window_size)
         self.q_target.update_weights(self.q_eval.model)
 
+    # Selects an action using an epsilon-greedy policy
     def choose_action(self, state_sequence, is_train=True):
         state_input = np.expand_dims(state_sequence, axis=0)
         if is_train and np.random.random() > self.epsilon:
@@ -119,13 +122,16 @@ class BaseAgent:
             duration_action = np.argmax(duration_q_values[0])
             return lane_action, duration_action, False
 
+    # Decays the epsilon value for exploration-exploitation tradeoff
     def decay_epsilon(self):
         if self.epsilon_dec is not None:
             self.epsilon = max(self.epsilon_min, self.epsilon - self.epsilon_dec)
 
+    # Updates the target network's weights
     def update_target_network(self):
         self.q_target.update_weights(self.q_eval.model)
 
+    # Trains the model using a batch of experiences from memory
     def learn(self):
         if self.memory.memory_counter < self.batch_size:
             return
@@ -171,6 +177,8 @@ class TrafficSimulation:
         self.train = train
         self.agents = {}
         self.window_size = window_size
+
+        # Define the traffic light phases for different clusters
         self.select_lane = {
             "clusterJ10_J2_J3_J4_#4more": [
                 ["GGGGrrrrrrrrrrrrrrrrr", "yyyyrrrrrrrrrrrrrrrrr"],
@@ -221,7 +229,7 @@ class TrafficSimulation:
                 ["rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrGGGGGGGGGG", "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrryyyyyyyyyy"]
             ]
         }
-    # Add the maximums dictionary
+        # Define the maximum vehicle counts for normalization
         self.maximums = {
             'cluster11552825949_12066181616_12066181631_4394798946_#4more': np.array([35, 50, 345, 55]),
             'cluster11557834599_4394798929_9597262032_J2': np.array([15, 25, 220, 75]),
@@ -233,6 +241,7 @@ class TrafficSimulation:
             'clusterJ57_J58_J59_J60_#4more': np.array([55, 55, 45, 30])
         }
     def initialize_agents(self, all_junctions):
+                # Calculate the epsilon decay rate for the agents
         total_training_steps = self.epochs * (self.steps // self.window_size)
         epsilon_decay = (0.3 - 0.01) / total_training_steps  # Adjust epsilon decay
 
@@ -251,11 +260,12 @@ class TrafficSimulation:
                 batch_size=32,
                 memory=memory,
                 window_size=self.window_size,
-                target_update_interval=10
+                target_update_interval=100
             )
             agent.epsilon_dec = epsilon_decay
             self.agents[junction] = agent
 
+        # Retrieve the IDs of incoming edges for a traffic light
     def get_incoming_edges(self, tl_id):
         edges_ids = list(set(lane_id[:-2] for lane_id in traci.trafficlight.getControlledLanes(tl_id)))
         return edges_ids
@@ -271,7 +281,7 @@ class TrafficSimulation:
         # If maximums are not provided for this junction, set default maximums
         if max_vehicle_counts is None:
             max_vehicle_counts = np.array([50, 50, 50, 50])  # Default values
-            logging.warning(f"No maximum vehicle counts provided for junction {tl_id}. Using default values.")
+            print(f"No maximum vehicle counts provided for junction {tl_id}. Using default values.")
 
         # Ensure that we have maximum counts for each edge
         if len(max_vehicle_counts) < len(incoming_edges):
@@ -326,11 +336,11 @@ class TrafficSimulation:
         return total_waiting_time / vehicle_count
 
     def set_phase_duration(self, junction, duration, phase_code):
+        # Set the traffic light phase and its duration
         traci.trafficlight.setRedYellowGreenState(junction, phase_code)
         traci.trafficlight.setPhaseDuration(junction, duration)
-
     def load_model(self, path):
-            model_folder = os.path.join(self.base_path, "models")
+            model_folder = os.path.join(self.base_path, "Models")
             for junction in self.agents:
                 model_path = os.path.join(model_folder, f"{junction}_final.weights.h5")
                 if os.path.exists(model_path):
@@ -338,27 +348,30 @@ class TrafficSimulation:
                     print(f"Loaded weights for {junction} from {model_path}")
                 else:
                     print(f"Model weights not found for {junction} at {model_path}")
-
-    def run_simulation(self):
+   
+    def run_simulation(self,train=True):
         avg_waiting_time_per_epoch = []
         total_rewards_per_epoch = []
         traci.start([checkBinary("sumo"), "-c", f"{self.base_path}/{self.config_path}"])
         all_junctions = traci.trafficlight.getIDList()
         self.initialize_agents(all_junctions)
-        if not self.train:
-            self.load_model(os.path.join(self.base_path, "models"))
+        if not train:
+            self.load_model(os.path.join(self.base_path, "\models"))        
         traci.close()
         for epoch in range(self.epochs):
             print(f"Epoch {epoch + 1} started.")
             total_reward = 0
             try:
-                traci.start([checkBinary("sumo"), "-c", f"{self.base_path}/{self.config_path}", "--start", "--quit-on-end","--scale","0.5"])
+                traci.start([checkBinary("sumo-gui"), "-c", f"{self.base_path}/{self.config_path}", "--start", "--quit-on-end","--scale","0.5"])
                 
                 total_waiting_time = 0
                 total_actions = 0
                 exploration_count = 0
                 exploitation_count = 0
                 step = 0
+
+                # Initialize timers, state histories, and action trackers for each junction
+
                 action_timers = {junction: 0 for junction in all_junctions}
                 yellow_timers = {junction: 0 for junction in all_junctions}
                 previous_states = {junction: [] for junction in all_junctions}
@@ -371,10 +384,11 @@ class TrafficSimulation:
                     traci.simulationStep()
                     step += 1
 
+                    # Process each junction to select the appropriate actions
                     for junction in all_junctions:
                         yellow_timers[junction] = max(0, yellow_timers[junction] - 1)
                         action_timers[junction] = max(0, action_timers[junction] - 1)
-
+                        # Obtain the current state for the junction
                         current_state = self.get_local_state(junction)
 
                         # Update the state history
@@ -384,15 +398,20 @@ class TrafficSimulation:
                             previous_states[junction].pop(0)
                             previous_states[junction].append(current_state)
 
+                        # If the junction is in the yellow light phase, skip to the next step
                         if yellow_timers[junction] > 0:
                             continue
 
+                        # If it's time to select a new action
                         if yellow_timers[junction] == 0 and action_timers[junction] == 0:
+
+                              # Perform the learning process based on the previous state-action pair
                             if previous_lane_actions[junction] is not None:
                                 new_state_sequence = np.array(previous_states[junction])
                                 current_waiting_time = self.get_junction_waiting_time(junction)
                                 current_combined_metric = current_waiting_time
 
+                                # Calculate reward as the difference in waiting time
                                 if previous_combined_metric[junction] is not None:
                                     reward = previous_combined_metric[junction] - current_combined_metric
                                 else:
@@ -454,7 +473,7 @@ class TrafficSimulation:
 
                 # Save checkpoints every 5 epochs
                 if (epoch + 1) % 25 == 0:
-                    checkpoint_folder = os.path.join(self.base_path, "models", "checkpoints")
+                    checkpoint_folder = os.path.join(self.base_path, "Models", "checkpoints")
                     if not os.path.exists(checkpoint_folder):
                         os.makedirs(checkpoint_folder)
                     for junction in all_junctions:
@@ -468,7 +487,7 @@ class TrafficSimulation:
                 raise e
 
         # Save final models
-        model_folder = os.path.join(self.base_path, "models")
+        model_folder = os.path.join(self.base_path, "Models")
         if not os.path.exists(model_folder):
             os.makedirs(model_folder)
         for junction in all_junctions:
@@ -488,7 +507,7 @@ class TrafficSimulation:
         plt.ylabel('Average Waiting Time (seconds)')
         plt.title('Average Waiting Time Across Epochs')
         plt.grid(True)
-        plot_path = os.path.join(plot_folder, 'average_waiting_time.png')
+        plot_path = os.path.join(plot_folder, 'average_waiting_time2.png')
         plt.savefig(plot_path)
         print(f"Average waiting time plot saved at {plot_path}")
         plt.close()
@@ -500,7 +519,7 @@ class TrafficSimulation:
         plt.ylabel('Cumulative Reward')
         plt.title('Cumulative Reward Across Epochs')
         plt.grid(True)
-        reward_plot_path = os.path.join(plot_folder, 'cumulative_reward.png')
+        reward_plot_path = os.path.join(plot_folder, 'cumulative_reward2.png')
         plt.savefig(reward_plot_path)
         print(f"Cumulative reward plot saved at {reward_plot_path}")
         plt.close()
@@ -508,5 +527,5 @@ class TrafficSimulation:
 if __name__ == "__main__":
     config_path = r"conf/configuration.sumocfg"
     base_path = r"./"
-    simulation = TrafficSimulation(config_path, base_path, epochs=50, steps=800, window_size=32,train=False)
-    simulation.run_simulation()
+    simulation = TrafficSimulation(config_path, base_path, epochs=1, steps=1000, window_size=32)
+    simulation.run_simulation(train=False)
