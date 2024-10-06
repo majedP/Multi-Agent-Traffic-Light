@@ -118,6 +118,11 @@ The simulation environment was designed based on the **Al-Malaz district in Riya
 
 ## Project Structure
 
+
+- **YOLO_Model**: Directory containing the YOLO model-related files.
+  - **Trained_Yolo11x_Model.ipynb**: Notebook for running the trained YOLO11x model.
+  - **Trainning_YOLO11x.ipynb**: Notebook for training the YOLO11x model.
+
 - **agents.py**: Contains the `BaseAgent` class, which defines the reinforcement learning agents using Double DQN with LSTM.
 - **memory.py**: Implements experience replay with the `ReplayMemory` class, used to store and sample past experiences.
 - **models.py**: Defines the LSTM-based neural network model used by each agent to predict actions.
